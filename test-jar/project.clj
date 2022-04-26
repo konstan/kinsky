@@ -13,9 +13,7 @@
                                        :managed-dependencies
                                        :repositories
                                        :deploy-repositories
-                                       :resource-paths
-                                       :pom-location
-                                       [:profiles :provided]]}
+                                       :resource-paths]}
             :source-paths ["../test"]
-            :clean-targets ^{:protect false} ["target"]
-            )
+            :dependencies [[org.apache.kafka/kafka_2.13 "3.1.0"]]
+            :clean-targets ^{:protect false} ["target"])

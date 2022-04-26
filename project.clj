@@ -1,4 +1,4 @@
-(defproject org.clojars.konstan/kinsky "0.3.0"
+(defproject org.clojars.konstan/kinsky "0.3.1"
   :description "Kafka clojure client library with tests against Kafka 3.x in KRaft mode. Fully based on https://github.com/pyr/kinsky"
   :plugins [[lein-ancient "0.6.15"]]
   :url "https://github.com/konstan/kinsky"
