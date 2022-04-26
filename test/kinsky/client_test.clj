@@ -1,32 +1,29 @@
 (ns kinsky.client-test
   (:require [clojure.test  :refer :all :as t]
-            [clojure.pprint :as pp]
             [kinsky.client :as client]
-            [kinsky.embedded :as e]))
+            [kinsky.embedded-kraft :as e]))
 
 (def host "localhost")
-(def kafka-port 9093)
-(def zk-port 2183)
-(def bootstrap-servers (format "%s:%s" host kafka-port))
+(def port 9093)
+(def bootstrap-servers (format "%s:%s" host port))
 
-(t/use-fixtures
-  :once (fn [f]
-          (let [z-dir (e/create-tmp-dir "zookeeper-data-dir")
-                k-dir (e/create-tmp-dir "kafka-log-dir")]
-            (try
-              (with-open [k (e/start-embedded-kafka
-                             {::e/host host
-                              ::e/kafka-port kafka-port
-                              ::e/zk-port zk-port
-                              ::e/zookeeper-data-dir (str z-dir)
-                              ::e/kafka-log-dir (str k-dir)
-                              ::e/broker-config {"auto.create.topics.enable" "true"}})]
-                (f))
-              (catch Throwable t
-                (throw t))
-              (finally
-                (e/delete-dir z-dir)
-                (e/delete-dir k-dir))))))
+(defn with-test-kafka-fixture
+  [f]
+  (let [k-dir (e/create-tmp-dir "kraft-combined-logs")]
+    (try
+      (with-open [k (e/start-embedded-kafka
+                      {::e/host          host
+                       ::e/port          port
+                       ::e/log-dirs      (str k-dir)
+                       ::e/server-config {"auto.create.topics.enable" "true"
+                                          "transaction.timeout.ms" "5000"}})]
+        (f))
+      (catch Throwable t
+        (throw t))
+      (finally
+        (e/delete-dir k-dir)))))
+
+(t/use-fixtures :once with-test-kafka-fixture)
 
 (deftest serializer
   (testing "string serializer"
@@ -102,20 +99,20 @@
 (deftest ^:integration producer
   (testing "flush"
     (let [producer (client/producer {:bootstrap.servers bootstrap-servers}
-                                    :string :string)]
+                                     :string :string)]
       (client/flush! producer))))
 
 (deftest ^:integration consumer
   (testing "stop"
     (let [consumer (client/consumer {:bootstrap.servers bootstrap-servers}
-                                    :string :string)]
+                                     :string :string)]
       (client/stop! consumer))))
 
 (deftest topics
   (testing "collection of keywords"
     (let [consumer (client/consumer {:bootstrap.servers bootstrap-servers
                                      :group.id "consumer-group-id"}
-                                    :string :string)]
+                                     :string :string)]
       (client/subscribe! consumer [:x :y :z]))))
 
 (deftest roundtrip
@@ -141,7 +138,7 @@
                                       :group.id "consumer-group-id-1")
                                d s)]
         (setup! c t)
-        (is (= (->> (client/poll! c 5000)
+        (is (= (->> (client/poll! c 10000)
                     :by-topic
                     vals
                     (apply concat)
@@ -202,8 +199,8 @@
             The first test header has duplicate keys :h1 and \"h1\" as the implementation converts all keywords
             to strings before storing them in the Headers ArrayList and converts them back to keywords when converting
             them back to a Clojure map. Duplicate key values are a valid scenario in Kafka for some wierd reason."
-    (let [headers (client/->headers {:h1 1 :h2 2.0 "h1" "foo"})
-          producer (org.apache.kafka.clients.producer.ProducerRecord. "test" (int 0) "key" "value" headers)
+    (let [^org.apache.kafka.common.header.Headers headers (client/->headers {:h1 1 :h2 2.0 "h1" "foo"})
+          producer (new org.apache.kafka.clients.producer.ProducerRecord "test" (java.lang.Integer/valueOf 0) "key" "val" headers)
           r-headers (.headers producer)]
       (is (instance? org.apache.kafka.common.header.Header (client/->header :h "foo")))
       (is (= "RecordHeader(key = :h1, value = Foo)" (.toString (client/->header :h1 "Foo"))))
