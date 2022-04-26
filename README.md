@@ -1,3 +1,28 @@
+**NB!**
+
+The Kafka client in this repository is fully based
+on [https://github.com/pyr/kinsky](https://github.com/pyr/kinsky), and this is
+where all the credits should go.
+
+The following updates to [https://github.com/pyr/kinsky](https://github.com/pyr/kinsky)
+library and repository were made:
+
+* minor updates to be able to use Kafka 3.x Java library,
+* embedded test server uses Kafka 3.x in KRaft mode,
+* added test jar.
+
+The library and tests jar are available on Clojars. Example usage with Leiningen:
+
+```clojure
+:dependencies
+[[org.clojars.konstan/kinsky "0.3.0"]]
+
+:profiles
+{
+ :test {:dependencies [[org.clojars.konstan/kinsky-test-jar "0.3.0"]]}
+ }
+```
+
 Kinsky: Clojure Kafka client library
 ====================================
 
