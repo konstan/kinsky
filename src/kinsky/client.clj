@@ -583,7 +583,7 @@
     (close! [this timeout]
       (if (nil? timeout)
         (.close producer)
-        (.close producer (long timeout) TimeUnit/MILLISECONDS)))
+        (.close producer (long timeout))))
     ProducerDriver
     (send! [this record]
       (.send producer (->record record)))
