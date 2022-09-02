@@ -1,5 +1,5 @@
 (ns kinsky.client-test
-  (:require [clojure.test  :refer :all :as t]
+  (:require [clojure.test  :refer [deftest testing is] :as t]
             [kinsky.client :as client]
             [kinsky.embedded-kraft :as e]))
 
@@ -12,11 +12,11 @@
   (let [k-dir (e/create-tmp-dir "kraft-combined-logs")]
     (try
       (with-open [_ (e/start-embedded-kafka
-                      {::e/host          host
-                       ::e/port          port
-                       ::e/log-dirs      (str k-dir)
-                       ::e/server-config {"auto.create.topics.enable" "true"
-                                          "transaction.timeout.ms" "5000"}})]
+                     {::e/host          host
+                      ::e/port          port
+                      ::e/log-dirs      (str k-dir)
+                      ::e/server-config {"auto.create.topics.enable" "true"
+                                         "transaction.timeout.ms" "5000"}})]
         (f))
       (catch Throwable t
         (throw t))
@@ -65,11 +65,6 @@
            (.deserialize (client/json-deserializer) ""
                          (.getBytes "{\"a\": \"b\", \"c\": \"d\"}"))))))
 
-(deftest config-props
-  (testing "valid configuration properties"
-    (is (= {"foo.bar" "0"}
-           (client/opts->props {:foo.bar 0})))))
-
 (deftest rebalance-listener
   (testing "idempotency"
     (let [sink (client/rebalance-listener (fn [& _]))]
@@ -99,20 +94,20 @@
 (deftest ^:integration producer
   (testing "flush"
     (let [producer (client/producer {:bootstrap.servers bootstrap-servers}
-                                     :string :string)]
+                                    :string :string)]
       (is (nil? (client/flush! producer))))))
 
 (deftest ^:integration consumer
   (testing "stop"
     (let [consumer (client/consumer {:bootstrap.servers bootstrap-servers}
-                                     :string :string)]
+                                    :string :string)]
       (is (nil? (client/stop! consumer))))))
 
 (deftest topics
   (testing "collection of keywords"
     (let [consumer (client/consumer {:bootstrap.servers bootstrap-servers
                                      :group.id "consumer-group-id"}
-                                     :string :string)]
+                                    :string :string)]
       (is (nil? (client/subscribe! consumer [:x :y :z]))))))
 
 (deftest roundtrip

@@ -1,12 +1,11 @@
 (ns kinsky.admin
   "Wrapper around Kafka's `AdminClient`"
-  (:require [kinsky.client :refer (GenericDriver opts->props)])
+  (:require [kinsky.util :refer [opts->props]])
   (:import (org.apache.kafka.clients.admin AdminClient ListTopicsOptions
                                            TopicListing NewTopic)
            java.util.concurrent.TimeUnit
            org.apache.kafka.common.KafkaFuture
-           org.apache.kafka.common.KafkaFuture$Function
-           clojure.lang.IDeref))
+           org.apache.kafka.common.KafkaFuture$Function))
 
 (defprotocol AdminClientDriver
   "Driver protocol for admin clients"

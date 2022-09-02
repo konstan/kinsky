@@ -1,11 +1,11 @@
 (ns kinsky.client
   "Small clojure shim on top of the Kafka client API
    See https://github.com/pyr/kinsky for example usage."
-  (:require [clojure.edn           :as edn]
-            [jsonista.core         :as json])
+  (:require [clojure.edn :as edn]
+            [jsonista.core :as json]
+            [kinsky.util :refer [opts->props]])
   (:import (java.util Collection)
            (java.util Map)
-           (java.util.concurrent TimeUnit)
            (java.util.regex Pattern)
            (org.apache.kafka.clients.consumer ConsumerRebalanceListener
                                               ConsumerRecord
@@ -254,18 +254,6 @@
                    (throw (ex-info "unknown serializer alias" {})))
     (fn? x)     (x)
     :else        x))
-
-(defn opts->props
-  "Kakfa configs are now maps of strings to strings. Morphs an arbitrary
-  clojure map into this representation.  Make sure we don't pass
-  options that are meant for the driver to concrete Consumers/Producers"
-  ^Map
-  [opts]
-  (into {}
-        (comp
-         (filter (fn [[k _]] (not (qualified-keyword? k))))
-         (map (fn [[k v]] [(name k) (str v)])))
-        opts))
 
 (defn rebalance-listener
   "Wrap a callback to yield an instance of a Kafka ConsumerRebalanceListener.
