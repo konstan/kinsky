@@ -1,0 +1,6 @@
+#:project
+{
+ :description "Kafka clojure client library with tests against Kafka 3.x in KRaft mode. Fully based on https://github.com/pyr/kinsky"
+ :license {:name "MIT License"
+           :url  "https://github.com/konstan/kinsky/tree/master/LICENSE"}
+ }

@@ -1,0 +1,12 @@
+{:deps
+ {org.clojure/clojure            {:mvn/version "1.11.1"}
+  org.apache.kafka/kafka-clients {:mvn/version "3.2.1"}
+  metosin/jsonista               {:mvn/version "0.2.5"}
+  org.slf4j/slf4j-api            {:mvn/version "1.7.36"}}
+ :aliases
+ {:test
+  {:extra-paths ["test-resources"]
+   :extra-deps 
+   {org.apache.kafka/kafka_2.13 {:mvn/version "3.2.1"}
+    lambdaisland/kaocha {:mvn/version "1.69.1069"}}
+   :exec-fn kaocha.runner/exec-fn}}}

@@ -11,7 +11,7 @@
   [f]
   (let [k-dir (e/create-tmp-dir "kraft-combined-logs")]
     (try
-      (with-open [k (e/start-embedded-kafka
+      (with-open [_ (e/start-embedded-kafka
                       {::e/host          host
                        ::e/port          port
                        ::e/log-dirs      (str k-dir)
@@ -100,20 +100,20 @@
   (testing "flush"
     (let [producer (client/producer {:bootstrap.servers bootstrap-servers}
                                      :string :string)]
-      (client/flush! producer))))
+      (is (nil? (client/flush! producer))))))
 
 (deftest ^:integration consumer
   (testing "stop"
     (let [consumer (client/consumer {:bootstrap.servers bootstrap-servers}
                                      :string :string)]
-      (client/stop! consumer))))
+      (is (nil? (client/stop! consumer))))))
 
 (deftest topics
   (testing "collection of keywords"
     (let [consumer (client/consumer {:bootstrap.servers bootstrap-servers
                                      :group.id "consumer-group-id"}
                                      :string :string)]
-      (client/subscribe! consumer [:x :y :z]))))
+      (is (nil? (client/subscribe! consumer [:x :y :z]))))))
 
 (deftest roundtrip
   (let [msgs {:account-a {:action :login}
