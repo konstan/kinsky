@@ -1,0 +1,24 @@
+name: CI
+
+on: [push]
+
+jobs:
+
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout @v3
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@9.5
+        with:
+          cli: 1.11.1
+      - run: clojure -X:test
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+          key: cljdeps-${{ hashFiles('deps.edn') }}
+          restore-keys: cljdeps-
